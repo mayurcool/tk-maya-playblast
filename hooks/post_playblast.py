@@ -49,17 +49,42 @@ class PostPlayblast(Hook):
                 # use current scene name to create valid QT file names
                 scenename = pm.sceneName()
                 fields = template_work.get_fields(scenename)
-                destination = [template_shot.apply_fields(fields), 
-                               template_sequence.apply_fields(fields)]
+                destination = [template_shot.apply_fields(fields),template_sequence.apply_fields(fields)]
                 # make sure that destination folder is exists
                 for each in destination:
                     if not os.path.exists(os.path.dirname(each)):
                         os.makedirs(os.path.dirname(each))
                 # copy local file to destination
                 for each in destination:
+                    print (data, each)
                     shutil.copy(data, each)
-            except:
-                print "Error in copying file %s" % data
+            except Exception,e:
+                print e
+                print "Error in copying mov file %s" % data
+            return True
+            
+            
+        elif action == "copy_maya_file":
+            try:
+                # get all required template
+                template_work = app.get_template("template_work")
+                template_shot = app.get_template("template_shot")
+                template_sequence = app.get_template("template_sequence")
+                # use current scene name to create valid QT file names
+                scenename = pm.sceneName()
+                fields = template_work.get_fields(scenename)
+                destination = [template_shot.apply_fields(fields),template_sequence.apply_fields(fields)]
+                # make sure that destination folder is exists
+                for each in destination:
+                    if not os.path.exists(os.path.dirname(each)):
+                        os.makedirs(os.path.dirname(each))
+                # copy local file to destination
+                for each in destination:
+                    print (data, each)
+                    shutil.copy(data, each)
+            except Exception,e:
+                print e
+                print "Error in copying mov file %s" % data
             return True
 
         elif action == "create_version":
@@ -82,13 +107,37 @@ class PostPlayblast(Hook):
                 # check if a version entity with same code exists in shotgun
                 # if none, create a new version Entity with qtfile name as its code
                 result=None
+                # version = sg.find_one("Version", [["code", "is", data["code"]]])
+                # if version:
+                    # app.log_debug("Version already exist, updating")
+                    # result = sg.update('Version', version["id"], data)
+                # else:
+                app.log_debug("Create a new Version as %s" % data["code"])
+                result = sg.create('Version', data)
+            except:
+                app.log_debug("Something wrong")
+                traceback.print_exc()
+            return result
+        
+        elif action == "check_version":
+            """ 
+                Setting up shotgun version entity without uploading the QT file
+            """
+            app.log_debug("checking up shotgun version entity...")
+            
+            try:
+                filters = [ ["Project", "is", data["project"]],
+                            ["code", "is", data["code"]],
+                            ]
+                # check if a version entity with same code exists in shotgun
+                # if none, create a new version Entity with qtfile name as its code
+                result=False
                 version = sg.find_one("Version", [["code", "is", data["code"]]])
+                print version
                 if version:
-                    app.log_debug("Version already exist, updating")
-                    result = sg.update('Version', version["id"], data)
-                else:
-                    app.log_debug("Create a new Version as %s" % data["code"])
-                    result = sg.create('Version', data)
+                    app.log_debug("Version already exist")
+                    print ("Version already exist")
+                    return True 
             except:
                 app.log_debug("Something wrong")
                 traceback.print_exc()

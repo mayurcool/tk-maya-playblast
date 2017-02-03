@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>The Current Sgtk Environment</string>
+   <string>Videogyan Playblast Tool-v0.0.1</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -20,14 +20,14 @@
    <item row="0" column="1">
     <widget class="QCheckBox" name="chbUploadToShotgun">
      <property name="text">
-      <string>Upload to Shotgun</string>
+      <string>Submit to Shotgun</string>
      </property>
     </widget>
    </item>
    <item row="0" column="2">
     <widget class="QCheckBox" name="chbShowViewer">
      <property name="text">
-      <string>Show Viewer</string>
+      <string>Open Mov in RV Player</string>
      </property>
      <property name="checked">
       <bool>true</bool>

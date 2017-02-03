@@ -22,7 +22,8 @@ class BasePlayblast(tank.platform.Application):
         """
         Called as the application is being initialized
         """
-        self.engine.register_command("Playblast...", self.run_app)
+        
+        self.engine.register_command("Playblast", self.run_app)
 
     def destroy_app(self):
         """
