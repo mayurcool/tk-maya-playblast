@@ -11,7 +11,7 @@
 import os
 import shutil
 import traceback
-
+import time
 import maya.cmds as cmds
 import pymel.core as pm
 import pprint
@@ -49,15 +49,20 @@ class PostPlayblast(Hook):
                 # use current scene name to create valid QT file names
                 scenename = pm.sceneName()
                 fields = template_work.get_fields(scenename)
-                destination = [template_shot.apply_fields(fields),template_sequence.apply_fields(fields)]
+                shot_fields = fields
+                shot_fields['year_month_day'] = datetime.now()
+                destination = [template_shot.apply_fields(shot_fields),template_sequence.apply_fields(fields)]
+                print "Copying file to server please wait..."
+                self.make_runme_batchfile(data,destination)
+                
                 # make sure that destination folder is exists
-                for each in destination:
-                    if not os.path.exists(os.path.dirname(each)):
-                        os.makedirs(os.path.dirname(each))
-                # copy local file to destination
-                for each in destination:
-                    print (data, each)
-                    shutil.copy(data, each)
+                # for each in destination:
+                    # if not os.path.exists(os.path.dirname(each)):
+                        # os.makedirs(os.path.dirname(each))
+                # # copy local file to destination
+                # for each in destination:
+                    # print (data, each)
+                    # shutil.copy(data, each)
             except Exception,e:
                 print e
                 print "Error in copying mov file %s" % data
@@ -133,7 +138,6 @@ class PostPlayblast(Hook):
                 # if none, create a new version Entity with qtfile name as its code
                 result=False
                 version = sg.find_one("Version", [["code", "is", data["code"]]])
-                print version
                 if version:
                     app.log_debug("Version already exist")
                     print ("Version already exist")
@@ -164,3 +168,35 @@ class PostPlayblast(Hook):
 
         else:
             app.log_debug("nothing to do")
+    
+    
+    def make_runme_batchfile(self,data,destination):
+        """
+
+        :param data:
+        :return:
+        """
+
+        TIMESTAMP_FORMAT = "%Y_%m_%d_%H_%M_%S"
+
+        makeDir = False
+        now = datetime.now().strftime(TIMESTAMP_FORMAT)
+        runme_temp_path = os.environ['TEMP'] + '\\runme_' + now + '.bat'
+        if os.path.exists(runme_temp_path):
+            os.remove(runme_temp_path)
+        try:
+            with open(runme_temp_path, 'w') as runme:
+                for each in destination:
+                    if not os.path.exists(os.path.dirname(each)):
+                        each_dir = os.path.dirname(each)
+                        runme.write('mkdir "%s" \n' % (each_dir.replace('V:', '\\\\vg_server\Project')))
+                    print (data, each)
+                    runme.write('copy "%s" "%s" /Y \n' % (data, each.replace('V:', '\\\\vg_server\Project'))) 
+        
+            os.system("S:\\softwares\\shotgun\\studio\\admin.exe %s" % runme_temp_path)
+            time.sleep(3)
+        except Exception, e :
+            print e
+            return False
+
+        return runme_temp_path

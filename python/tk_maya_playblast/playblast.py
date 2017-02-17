@@ -128,9 +128,13 @@ class PlayblastManager(object):
                 if result==QtGui.QMessageBox.Abort:
                     self._app.log_error("Submission aborted")
                 return 
+            
             self._app.log_debug("Version-creation hook data:\n" + pprint.pformat(data))
+            
             version_result = self._app.execute_hook("hook_post_playblast", action="create_version", data=data)
+            
             self._app.log_debug("Version-creation hook result:\n" + pprint.pformat(version_result))
+            
             print ("Version-creation hook result:\n" + pprint.pformat(version_result))
             
             result = self._app.execute_hook("hook_post_playblast", action="copy_file", data=localPlayblastPath)
