@@ -53,7 +53,14 @@ class PlayblastDialog(QtGui.QWidget):
         overridePlayblastParams = {}
 
         uploadToShotgun = self._ui.chbUploadToShotgun.isChecked()
-        self._handler.setUploadToShotgun( uploadToShotgun )
+        
+        #day_val = int(self.ui.spB_day.value())
+        #hrs_val = int(self.ui.spB_hrs.value())
+        
+        day_count = int(self._ui.spB_day.value())
+        hrs_count = int(self._ui.spB_hrs.value())
+        
+        self._handler.setUploadToShotgun( uploadToShotgun ,day_count ,hrs_count)
 
         showViewer = self._ui.chbShowViewer.isChecked()
         overridePlayblastParams["viewer"] = showViewer

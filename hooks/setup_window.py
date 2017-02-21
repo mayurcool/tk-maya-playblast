@@ -152,9 +152,10 @@ class SetupWindow(Hook):
                 # if not use default current active camera
                 camera_name_pattern = app.get_setting( "camera_name_pattern", "persp" )
                 cameraList = [c.name() for c in pm.ls(type="camera", r=True) if re.search( camera_name_pattern, c.name() )]
+                #print cameraList
                 if not "cam" in MODEL_EDITOR_PARAMS.keys() and cameraList:
                     MODEL_EDITOR_PARAMS["cam"] = cameraList[0]
-                    
+                #print MODEL_EDITOR_PARAMS    
                 # Give Viewport 2.0 renderer only for Maya 2015++
                 # mayaVersionString = cmds.about(version=True)
                 # mayaVersion = int(mayaVersionString[:4]) if len(mayaVersionString) >= 4 else 0

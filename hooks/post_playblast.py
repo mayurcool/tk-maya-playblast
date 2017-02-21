@@ -165,7 +165,28 @@ class PostPlayblast(Hook):
             except:
                 app.log_debug("Something wrong")
                 traceback.print_exc()
+            
+        elif action == "log_time":
+            """
+                Setting up shotgun version entity without uploading the QT file
+            """
+            app.log_debug("Setting up shotgun time log entity...")
 
+            try:
+
+                result = None
+                app.log_debug("Create a new Time log for %s" % data["entity"])
+
+                result = sg.create("TimeLog", {"duration": data['duration'],
+                                                "entity": app.context.task,
+                                                "project": app.context.project})
+            except Exception, e:
+                print ("Something wrong!!! failed to log time consumed\n")
+                print e
+                traceback.print_exc()
+                return False
+            return True    
+            
         else:
             app.log_debug("nothing to do")
     

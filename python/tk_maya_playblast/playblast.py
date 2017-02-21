@@ -28,6 +28,9 @@ class PlayblastManager(object):
         """
         self._app = app
         self._context = context if context else self._app.context
+        
+        self.day_count = None
+        self.hrs_count = None
 
     def showDialog(self):
         try:
@@ -118,7 +121,18 @@ class PlayblastManager(object):
                      'sg_task': task,
                    }
                    
-                   
+            
+            
+            day_count = self.day_count * 8
+            hrs_count = self.hrs_count
+            total_hours = (day_count + hrs_count) * 60
+
+            timelog_data = {'project': project,
+                    'duration': total_hours,
+                    'entity': task,
+                    }
+
+            
             version_exists = self._app.execute_hook("hook_post_playblast", action="check_version", data=data)
             
             if version_exists == True:
@@ -148,8 +162,21 @@ class PlayblastManager(object):
                                                           project=project,
                                                           version_id=version_result["id"]))
 
+        
+        
+                result_log = self._app.execute_hook("hook_post_playblast", action="log_time", data=timelog_data)
+                
+                if result and result_log:
+                    result = QtGui.QMessageBox.information(None, u"Done!",
+                                                            "%s"
+                                                            "\n Submission Completed Successfully!" % data['code'],
+                                                            QtGui.QMessageBox.Ok)
+                
+                
         self._app.log_info("Playblast finished")
 
-    def setUploadToShotgun(self, value):
+    def setUploadToShotgun(self, value,day,hrs):
         self._app.log_debug("Upload to Shotgun set to %s" % value)
         self.__uploadToShotgun = value
+        self.day_count = day
+        self.hrs_count = hrs
